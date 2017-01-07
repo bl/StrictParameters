@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe StrictParameters::Parameters do
   let :person_attributes do
@@ -101,7 +100,7 @@ describe StrictParameters::Parameters do
 
       expect { @params.permit(name: StrictParameters::StringFilter) }.to raise_error(
         StrictParameters::ConversionUnsupported,
-        /conversion of '.+?Obje.+?' unsupported for 'StrictParameters::StringFilter'/
+        /conversion of '.+?Object.+?' unsupported for 'StrictParameters::StringFilter'/
       )
     end
   end
