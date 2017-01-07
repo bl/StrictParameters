@@ -1,5 +1,7 @@
 module StrictParameters
   class Parameters
+    extend Forwardable
+
     PERMITTED_FILTER_TYPES = [
       StringFilter,
       IntegerFilter
@@ -9,16 +11,14 @@ module StrictParameters
       @parameters = parameters.with_indifferent_access
     end
 
+    def_delegators :@parameters, :to_h, :keys, :key?, :has_key?, :values, :has_value?, :value?, :empty?, :include?
+
     def [](key)
       @parameters[key]
     end
 
     def []=(key, value)
       @parameters[key] = value
-    end
-
-    def to_h
-      @parameters.to_h
     end
 
     def require_hash(key)
