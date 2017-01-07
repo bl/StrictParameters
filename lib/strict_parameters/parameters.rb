@@ -1,7 +1,8 @@
 module StrictParameters
   class Parameters
     PERMITTED_FILTER_TYPES = [
-      Filter::StringFilter     
+      StringFilter,
+      IntegerFilter
     ]
 
     def initialize(parameters = {})
@@ -14,6 +15,10 @@ module StrictParameters
 
     def []=(key, value)
       @parameters[key] = value
+    end
+
+    def to_h
+      @parameters.to_h
     end
 
     def require_hash(key)
@@ -36,7 +41,7 @@ module StrictParameters
     #
     # params.require_hash(:person).permit(
     #   name: 'Francesco',
-    #   age: Integer,
+    #   age: Filter::Integer,
     # )
     #
     # params = StrictParameters::Parameters.new({
@@ -49,7 +54,7 @@ module StrictParameters
     #
     # params.require_hash(:person).permit(
     #   contact: {
-    #     name: String,
+    #     name: StringFilter,
     #   }
     # )
     def permit(filters)
@@ -57,7 +62,7 @@ module StrictParameters
 
       filters.each do |filter, type|
         unless supported_filter_type?(type)
-          raise UnsupportedFilterType.new(type)
+          raise FilterUnsupported.new(type)
         end
 
         permit_filter(params, filter, type)
@@ -69,14 +74,13 @@ module StrictParameters
     private
 
     def supported_filter_type?(type)
-      return false if type.is_a?(Hash)
-      PERMITTED_FILTER_TYPES.any? { |filter| filter.supported?(type) }
+      PERMITTED_FILTER_TYPES.include?(type)
     end
 
     def permit_filter(params, filter, type)
-      return unless @parameters.has_key?(filter)
+      return unless @parameters.has_key?(filter) && type.supported?(@parameters[filter])
 
-      params[filter] = type.convert(@parameters[key])
+      params[filter] = type.convert(@parameters[filter])
     end
   end
 end

@@ -1,14 +1,24 @@
 module StrictParameters
-  class ParameterUnsupported < KeyError
+  class ParameterMissing < KeyError
+    attr_reader :param
+
+    def initialize(param)
+      @param = param
+      super("param '#{param}' is not present in the provided parameter")
+    end
+  end
+
+  class ConversionUnsupported < KeyError
     attr_reader :param, :type
 
     def initialize(type, param)
       @param = param
-      super("param value '#{param}' unsupported for '#{type}'")
+      @type = type
+      super("conversion of '#{param}' unsupported for '#{type}'")
     end
   end
 
-  class FilterTypeUnsupported < KeyError
+  class FilterUnsupported < KeyError
     attr_reader :param
 
     def initialize(param)
