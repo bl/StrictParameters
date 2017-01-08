@@ -59,11 +59,11 @@ module StrictParameters
     # )
     def permit(filters)
       params = self.class.new
+      return params unless filters.respond_to?(:each)
 
       filters.each do |filter, type|
-        unless supported_filter_type?(type)
-          raise FilterUnsupported.new(type)
-        end
+        raise FilterKeyUnsupported.new(filter) unless supported_filter?(filter)
+        raise FilterTypeUnsupported.new(type) unless supported_type?(type)
 
         permit_filter(params, filter, type)
       end
@@ -73,7 +73,11 @@ module StrictParameters
 
     private
 
-    def supported_filter_type?(type)
+    def supported_filter?(filter)
+      filter.is_a?(String) || filter.is_a?(Symbol)
+    end
+
+    def supported_type?(type)
       PERMITTED_FILTER_TYPES.include?(type)
     end
 

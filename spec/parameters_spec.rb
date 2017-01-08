@@ -84,13 +84,33 @@ describe StrictParameters::Parameters do
       expect(@permitted.to_h).to eq('name' => 'Billy', 'height' => 175)
     end
 
+    it "supports array formatted key-type pairs" do
+      @permitted = @params.permit([
+          [:name, StrictParameters::StringFilter],
+          [:height, StrictParameters::IntegerFilter]
+        ]
+      )
+      expect(@permitted.to_h).to eq('name' => 'Billy', 'height' => 175)
+    end
+
+    it "returns an empty Parameters object on non key-type pair parameters" do
+      expect(@params.permit(:name)).to be_empty
+    end
+
     it "ignores ignores unmarched filters" do
       @permitted = @params.permit(potato: StrictParameters::StringFilter)
       expect(@permitted.to_h).to be_empty
     end
 
-    it "raises FilterUnsupported on unsupported filter objects" do
-      expect{ @params.permit(potato: Hash) }.to raise_error StrictParameters::FilterUnsupported, 'filter type unsupported: Hash'
+    it "raises FilterKeyUnsupported on unsupported key objects" do
+      expect{ @params.permit(['keys'] => StrictParameters::StringFilter) }.to raise_error(
+        StrictParameters::FilterKeyUnsupported,
+        "filter key unsupported: 'Array'. Use String or Symbol."
+      )
+    end
+
+    it "raises FilterTypeUnsupported on unsupported filter objects" do
+      expect{ @params.permit(potato: Hash) }.to raise_error StrictParameters::FilterTypeUnsupported, "filter type unsupported: 'Hash'"
     end
 
     it "raises ConversionUnsupported on object that incorrectly implements conversion" do
