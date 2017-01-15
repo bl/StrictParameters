@@ -4,7 +4,8 @@ module StrictParameters
 
     PERMITTED_FILTER_TYPES = [
       StringFilter,
-      IntegerFilter
+      IntegerFilter,
+      DateTimeFilter
     ]
 
     def initialize(parameters = {})
